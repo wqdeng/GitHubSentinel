@@ -22,9 +22,8 @@ def export_progress_by_date_range(repo, days):
     return report, report_file_path  # 返回报告内容和报告文件路径
 
 # 创建Gradio界面
-demo = gr.Interface(
+progress_report = gr.Interface(
     fn=export_progress_by_date_range,  # 指定界面调用的函数
-    title="GitHubSentinel",  # 设置界面标题
     inputs=[
         gr.Dropdown(
             subscription_manager.list_subscriptions(), label="订阅列表", info="已订阅GitHub项目"
@@ -32,8 +31,46 @@ demo = gr.Interface(
         gr.Slider(value=2, minimum=1, maximum=7, step=1, label="报告周期", info="生成项目过去一段时间进展，单位：天"),
         # 滑动条选择报告的时间范围
     ],
+    submit_btn="查询",
+    clear_btn="清空",
     outputs=[gr.Markdown(), gr.File(label="下载报告")],  # 输出格式：Markdown文本和文件下载
 )
+
+def save_subscription(repo):
+    if not repo:
+        return "请输入要订阅的仓库，再点击添加按钮！"
+
+    if "/" not in repo:
+        return "要订阅的仓库格式不正确，请重新输入！"
+
+    if repo not in subscription_manager.list_subscriptions():
+        subscription_manager.add_subscription(repo)
+        return f"新增 [{repo}] 仓库订阅成功！"
+
+    return f"仓库 [{repo}] 已订阅！"
+
+def delete_subscription(repo):
+    if not repo:
+        return "请选择/输入要订阅的仓库，再点击添加按钮！"
+
+    if repo in subscription_manager.list_subscriptions():
+        subscription_manager.remove_subscription(repo)
+        return f"删除 [{repo}] 仓库订阅成功！"
+
+    return f"仓库 [{repo}] 没有订阅！"
+
+with gr.Blocks() as subscriptions_maintenance:
+    subscription_repo = gr.Dropdown(
+        subscription_manager.list_subscriptions(), label="订阅仓库", value="", allow_custom_value=True, info="仓库owner/仓库名称"
+    )
+    maintenance_result = gr.Textbox("", label="维护结果")
+
+    add_subscription_btn = gr.Button("新增")
+    delete_subscription_btn = gr.Button("删除")
+    add_subscription_btn.click(fn=save_subscription, inputs=[subscription_repo], outputs=[maintenance_result], api_name="add_subscription")
+    delete_subscription_btn.click(fn=delete_subscription, inputs=[subscription_repo], outputs=[maintenance_result], api_name="delete_subscription")
+
+demo = gr.TabbedInterface([progress_report, subscriptions_maintenance], ["报告查询", "订阅列表维护"])
 
 if __name__ == "__main__":
     demo.launch(share=True, server_name="0.0.0.0")  # 启动界面并设置为公共可访问
