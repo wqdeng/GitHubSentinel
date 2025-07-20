@@ -80,7 +80,7 @@ class CommandHandler:
         print(f"Exported progress for the last {args.days} days for repository: {args.repo}")
 
     def generate_daily_report(self, args):
-        self.report_generator.generate_daily_report(args.file)
+        self.report_generator.generate_github_report(args.file)
         print(f"Generated daily report from file: {args.file}")
 
     def print_help(self, args=None):

@@ -1,4 +1,3 @@
-import os
 import json
 from openai import OpenAI  # 导入OpenAI库用于访问GPT模型
 from logger import LOG  # 导入日志模块
@@ -7,14 +6,11 @@ class LLM:
     def __init__(self):
         # 创建一个OpenAI客户端实例
         self.client = OpenAI()
-        # 从TXT文件加载提示信息
-        with open("prompts/report_prompt.txt", "r", encoding='utf-8') as file:
-            self.system_prompt = file.read()
 
-    def generate_daily_report(self, markdown_content, dry_run=False):
+    def generate_report(self, system_prompt, markdown_content, dry_run=False):
         # 使用从TXT文件加载的提示信息
         messages = [
-            {"role": "system", "content": self.system_prompt},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": markdown_content},
         ]
 
