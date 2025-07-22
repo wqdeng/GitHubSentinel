@@ -18,12 +18,8 @@ class LLM:
             self.api_url = config.ollama_api_url  # 设置Ollama API的URL
         else:
             raise ValueError(f"Unsupported model type: {self.model}")  # 如果模型类型不支持，抛出错误
-        
-        # 从TXT文件加载系统提示信息
-        with open("prompts/report_prompt.txt", "r", encoding='utf-8') as file:
-            self.system_prompt = file.read()
 
-    def generate_daily_report(self, markdown_content, dry_run=False):
+    def generate_report(self, system_prompt, markdown_content, dry_run=False):
         """
         生成每日报告，根据配置选择不同的模型来处理请求。
         
@@ -33,7 +29,7 @@ class LLM:
         """
         # 准备消息列表，包含系统提示和用户内容
         messages = [
-            {"role": "system", "content": self.system_prompt},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": markdown_content},
         ]
 
