@@ -32,6 +32,18 @@ class Notifier:
         else:
             LOG.warning("邮件设置未配置正确，无法发送 Hacker News 报告通知")
     
+    def notify_aibase_report(self, date, report):
+        """
+        发送今日AI热点邮件
+        :param date: 报告日期
+        :param report: 报告内容
+        """
+        if self.email_settings:
+            subject = f"[今日AI热点] {date}"
+            self.send_email(subject, report)
+        else:
+            LOG.warning("邮件设置未配置正确，无法发送今日AI热点通知")
+
     def send_email(self, subject, report):
         LOG.info(f"准备发送邮件:{subject}")
         msg = MIMEMultipart()

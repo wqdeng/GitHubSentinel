@@ -88,6 +88,23 @@ class ReportGenerator:
                     markdown_content += file.read() + "\n"
         return markdown_content
 
+    def generate_aibase_report(self, markdown_file_path):
+        """
+        生成 AIBase Today's AI Trending 的报告，并保存为 {original_filename}_report.md。
+        """
+        with open(markdown_file_path, 'r') as file:
+            markdown_content = file.read()
+
+        system_prompt = self.prompts.get("aibase")
+        LOG.debug(f"System prompt: {system_prompt}")
+        report = self.llm.generate_report(system_prompt, markdown_content)
+
+        report_file_path = os.path.splitext(markdown_file_path)[0] + "_report.md"
+        with open(report_file_path, 'w+') as report_file:
+            report_file.write(report)
+
+        LOG.info(f"AIBase Today's AI Trending 报告已保存到 {report_file_path}")
+        return report, report_file_path
 
 if __name__ == '__main__':
     from config import Config  # 导入配置管理类
